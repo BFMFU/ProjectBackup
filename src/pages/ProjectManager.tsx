@@ -6,9 +6,14 @@ import { TextField } from "@mui/material";
 import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addProject, getAllProjects, updateProject, deleteProject } from "../store/slices/projectSlice";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {
+  addProject,
+  getAllProjects,
+  updateProject,
+  deleteProject,
+} from "../store/slices/projectSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function ProjectManager() {
   const [search, setSearch] = useState("");
   const dispatch: any = useDispatch();
@@ -18,8 +23,10 @@ export default function ProjectManager() {
     const [name, setName] = useState("");
     const [image, setImage] = useState("");
     const [uploading, setUploading] = useState(false);
-    const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "your_cloud_name";
-    const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "your_upload_preset";
+    const CLOUD_NAME =
+      import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "your_cloud_name";
+    const UPLOAD_PRESET =
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "your_upload_preset";
 
     async function uploadToCloudinary(file: File) {
       if (!file) return "";
@@ -37,8 +44,10 @@ export default function ProjectManager() {
       }
     }
     const [description, setDescription] = useState("");
-    useEffect(()=>{
-      if(props.project){
+    useEffect(() => {
+      const isExist = localStorage.getItem("isExist");
+      if (!isExist) window.location.href = "/login";
+      if (props.project) {
         setName(props.project.projectName || "");
         setImage(props.project.image || "");
         setDescription(props.project.description || "");
@@ -47,9 +56,8 @@ export default function ProjectManager() {
         setImage("");
         setDescription("");
       }
-    },[props.project]);
+    }, [props.project]);
     return (
-      
       <Modal
         {...props}
         size="md"
@@ -64,9 +72,17 @@ export default function ProjectManager() {
         <Modal.Body
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >
-          <TextField label="Tên Dự Án" name="projectName" fullWidth value={name} onChange={(e)=>setName(e.target.value)} />
+          <TextField
+            label="Tên Dự Án"
+            name="projectName"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
           <div>
-            <label style={{display: 'block', marginBottom: 8}}>Ảnh đại diện</label>
+            <label style={{ display: "block", marginBottom: 8 }}>
+              Ảnh đại diện
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -79,21 +95,46 @@ export default function ProjectManager() {
                 setUploading(false);
               }}
             />
-            {uploading && <div style={{marginTop:8}}>Đang tải ảnh lên...</div>}
+            {uploading && (
+              <div style={{ marginTop: 8 }}>Đang tải ảnh lên...</div>
+            )}
             {image && (
-              <img src={image} alt="preview" style={{width: '100%', maxHeight: 180, objectFit: 'cover', marginTop: 8, borderRadius: 6}} />
+              <img
+                src={image}
+                alt="preview"
+                style={{
+                  width: "100%",
+                  maxHeight: 180,
+                  objectFit: "cover",
+                  marginTop: 8,
+                  borderRadius: 6,
+                }}
+              />
             )}
           </div>
-          <TextField label="Mô tả" name="description" fullWidth multiline rows={3} value={description} onChange={(e)=>setDescription(e.target.value)} />
+          <TextField
+            label="Mô tả"
+            name="description"
+            fullWidth
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={props.onHide}>
             Close
           </Button>
-          <Button variant="primary" disabled={uploading} onClick={() => {
-            if(props.onSave) props.onSave({ projectName: name, image, description });
-            props.onHide();
-          }}>
+          <Button
+            variant="primary"
+            disabled={uploading}
+            onClick={() => {
+              if (props.onSave)
+                props.onSave({ projectName: name, image, description });
+              props.onHide();
+            }}
+          >
             Lưu
           </Button>
         </Modal.Footer>
@@ -110,10 +151,10 @@ export default function ProjectManager() {
   const [selectedToDelete, setSelectedToDelete] = useState<any>(null);
 
   const handleClose = () => setShow(false);
- 
-  useEffect(()=>{
+
+  useEffect(() => {
     dispatch(getAllProjects());
-  },[dispatch]);
+  }, [dispatch]);
 
   return (
     <div>
@@ -152,7 +193,13 @@ export default function ProjectManager() {
               marginBottom: "15px",
             }}
           >
-            <Button variant="primary" onClick={() => { setEditing(null); setModalShow(true); }}>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setEditing(null);
+                setModalShow(true);
+              }}
+            >
               + Thêm dự án
             </Button>
 
@@ -160,17 +207,33 @@ export default function ProjectManager() {
               show={modalShow}
               project={editing}
               onSave={async (data: any) => {
-                try{
-                  if(editing && editing.id){
-                    await dispatch(updateProject({ id: editing.id, project: { ...editing, projectName: data.projectName, image: data.image, description: data.description } })).unwrap();
-                    toast.success('Cập nhật dự án thành công');
+                try {
+                  if (editing && editing.id) {
+                    await dispatch(
+                      updateProject({
+                        id: editing.id,
+                        project: {
+                          ...editing,
+                          projectName: data.projectName,
+                          image: data.image,
+                          description: data.description,
+                        },
+                      })
+                    ).unwrap();
+                    toast.success("Cập nhật dự án thành công");
                   } else {
-                    await dispatch(addProject({ projectName: data.projectName, image: data.image, description: data.description })).unwrap();
-                    toast.success('Thêm dự án thành công');
+                    await dispatch(
+                      addProject({
+                        projectName: data.projectName,
+                        image: data.image,
+                        description: data.description,
+                      })
+                    ).unwrap();
+                    toast.success("Thêm dự án thành công");
                   }
-                } catch (err){
+                } catch (err) {
                   console.error(err);
-                  toast.error('Có lỗi xảy ra khi lưu dự án');
+                  toast.error("Có lỗi xảy ra khi lưu dự án");
                 }
               }}
               onHide={() => setModalShow(false)}
@@ -219,7 +282,9 @@ export default function ProjectManager() {
                   <td style={{ padding: "10px", textAlign: "center" }}>
                     {p.id}
                   </td>
-                  <td style={{ padding: "10px", width: "70%" }}>{p.projectName}</td>
+                  <td style={{ padding: "10px", width: "70%" }}>
+                    {p.projectName}
+                  </td>
                   <td
                     style={{
                       padding: "10px",
@@ -228,9 +293,30 @@ export default function ProjectManager() {
                       justifyContent: "center",
                     }}
                   >
-                    <Button variant="warning" onClick={() => { setEditing(p); setModalShow(true); }}>Sửa</Button>
-                    <Button variant="danger" onClick={() => { setSelectedToDelete(p); setShow(true); }}>Xoá</Button>
-                    <Button variant="primary" onClick={()=>navigate(`/projects/${p.id}`)}>Chi tiết</Button>
+                    <Button
+                      variant="warning"
+                      onClick={() => {
+                        setEditing(p);
+                        setModalShow(true);
+                      }}
+                    >
+                      Sửa
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setSelectedToDelete(p);
+                        setShow(true);
+                      }}
+                    >
+                      Xoá
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate(`/projects/${p.id}`)}
+                    >
+                      Chi tiết
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -303,24 +389,29 @@ export default function ProjectManager() {
         <Modal.Header closeButton>
           <Modal.Title>Xác Nhận Xóa</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Bạn có chắc muốn xóa dự án "{selectedToDelete?.projectName}" ?</Modal.Body>
+        <Modal.Body>
+          Bạn có chắc muốn xóa dự án "{selectedToDelete?.projectName}" ?
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Hủy
           </Button>
-          <Button variant="danger" onClick={async ()=>{
-            if(!selectedToDelete) return;
-            try{
-              await dispatch(deleteProject(selectedToDelete.id)).unwrap();
-              toast.success('Xoá dự án thành công');
-            } catch(err){
-              console.error(err);
-              toast.error('Xoá dự án thất bại');
-            } finally {
-              setShow(false);
-              setSelectedToDelete(null);
-            }
-          }}>
+          <Button
+            variant="danger"
+            onClick={async () => {
+              if (!selectedToDelete) return;
+              try {
+                await dispatch(deleteProject(selectedToDelete.id)).unwrap();
+                toast.success("Xoá dự án thành công");
+              } catch (err) {
+                console.error(err);
+                toast.error("Xoá dự án thất bại");
+              } finally {
+                setShow(false);
+                setSelectedToDelete(null);
+              }
+            }}
+          >
             Xóa
           </Button>
         </Modal.Footer>

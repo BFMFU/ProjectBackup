@@ -36,7 +36,7 @@ export default function Login() {
     );
 
     if (isExist) {
-      localStorage.setItem("user", JSON.stringify(isExist));
+      localStorage.setItem("isExist", JSON.stringify(true));
       setAlert({ type: "success", message: "Đăng nhập thành công" });
       setTimeout(() => {
         navigate("/projects");

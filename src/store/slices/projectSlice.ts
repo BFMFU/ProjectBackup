@@ -39,7 +39,6 @@ export const updateProject = createAsyncThunk(
             const response = await axios.put(`http://localhost:8080/projects/${payload.id}`, payload.project);
             return response.data;
         } catch (error) {
-            console.log(error);
             throw error;
         }
     }
